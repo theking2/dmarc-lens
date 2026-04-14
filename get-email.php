@@ -57,14 +57,11 @@ if( $emails ) {
             $body = imap_fetchbody( $inbox, $email_number, $att['index'] );
             // Decode if needed
             $encoding = $structure->parts[$att['index'] - 1]->encoding;
-            switch( $encoding ) {
-                case 3: // BASE64
-                    $body = base64_decode( $body );
-                    break;
-                case 4: // QUOTED-PRINTABLE
-                    $body = quoted_printable_decode( $body );
-                    break;
-            }
+            $body = match( $encoding ) {
+                3 => base64_decode( $body ),
+                4 => quoted_printable_decode( $body ),
+                default => $body
+            };
 
             // Save to temp file
             $tmpPath = sys_get_temp_dir() . '/' . uniqid( 'dmarc_', true ) . '.xml.gz';
