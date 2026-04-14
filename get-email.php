@@ -26,7 +26,7 @@ if ($emails) {
 
     foreach ($emails as $email_number) {
         $structure = imap_fetchstructure($inbox, $email_number);
-        $attachments = [];
+        foreach ($emails as $email_number) {
 
         // Find attachments
         if (isset($structure->parts) && count($structure->parts)) {
@@ -92,10 +92,14 @@ if ($emails) {
     }
     $output .= "<div class='alert alert-info'>Done. Imported: $imported, Skipped: $skipped, Errors: $errors</div>";
     echo $output;
+            // Mark email for deletion after processing
+            imap_delete($inbox, $email_number);
     renderFoot();
 } else {
     renderHead('Import from Mailbox');
     echo '<div class="alert alert-info">No emails found.</div>';
+        // Expunge deleted emails
+        imap_expunge($inbox);
     renderFoot();
 }
 
